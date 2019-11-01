@@ -9,7 +9,6 @@ START_TEST(size_test) {
 	ck_assert(size == 5);
 } END_TEST
 
-
 START_TEST(read_test) {
 	long int size = audio_size("test/samples/sample.mp3");
 	char* buffer1 = read_audio("test/samples/sample.mp3", size);
@@ -24,6 +23,23 @@ START_TEST(read_test) {
 	ck_assert(compare_buffer(buffer1, buffer2, size));
 } END_TEST
 
+START_TEST(write_test) {	
+
+	char* buffer = malloc(5);
+	buffer[0] = 0x11;
+	buffer[1] = 0xAA;
+	buffer[2] = 0xBB;
+	buffer[3] = 0xFF;
+	buffer[4] = 0xDD;
+		
+	write_audio("test/output.mp3", buffer, 5);
+	
+	char* buffer2 = read_audio("test/output.mp3", 5);
+
+	ck_assert(compare_buffer(buffer, buffer2, 5));
+} END_TEST
+
+
 Suite * test_suite(void)
 {
 	Suite *s;
@@ -33,6 +49,7 @@ Suite * test_suite(void)
 	
 	tcase_add_test(tc_core, size_test);
 	tcase_add_test(tc_core, read_test);
+	tcase_add_test(tc_core, write_test);
 
 	suite_add_tcase(s, tc_core);
 	return s;

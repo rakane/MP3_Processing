@@ -1,15 +1,12 @@
 link: lib compile
-	gcc main.o -L. libread_audio.a libaudio_size.a -o main
-	gcc test/check.o -L. libread_audio.a libaudio_size.a -o check `pkg-config --cflags --libs check`
+	gcc main.o -L. libaudio_io.a -o main
+	gcc test/check.o -L. libaudio_io.a -o check `pkg-config --cflags --libs check`
 	rm main.o
 	rm test/check.o
-	rm libread_audio.a
-	rm libaudio_size.a
+	rm libaudio_io.a
 lib:
-	gcc -c io/read_audio.c -o read_audio.o
-	gcc -c io/audio_size.c -o audio_size.o
-	mv read_audio.o libread_audio.a
-	mv audio_size.o libaudio_size.a
+	gcc -c io/audio_io.c -o audio_io.o
+	mv audio_io.o libaudio_io.a
 compile:
 	gcc -c main.c -o main.o
 	gcc -c test/check.c -o test/check.o
