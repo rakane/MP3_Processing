@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	
 	char* buffer = read_audio(argv[1], size);
 	
-	write_audio("output.mp3", buffer, size);
+	process_audio(buffer, size);	
 		
 	return 1;
 }
