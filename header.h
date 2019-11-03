@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 struct frame {
 	unsigned int version_id;
@@ -14,9 +15,8 @@ struct frame {
 	unsigned int copyright;
 	unsigned int original;
 	unsigned int emphasis;
-	unsigned int* data;
+	unsigned char* data;
 	unsigned int frame_length;
-
 };
 
 long int audio_size(char*);
