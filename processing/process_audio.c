@@ -12,74 +12,112 @@ void print_binary(unsigned int num, unsigned int num_bits) {
 	}
 }
 
-struct frame process_audio(char* buffer, long int size) {
+struct frame* process_audio(char* buffer, long int size) {
 	struct frame frame1;
-
-
-	long int index = find_Next_Frame(buffer, size, 0);
-	printf("First frame index: %ld\n", index);
+	struct frame* frames = malloc(10000 * sizeof(struct frame));
 	
-	frame1.version_id = get_VersionID(buffer, index);
+	long int firstIndex = find_Next_Frame(buffer, size, 0);
+	long int index = firstIndex;
+	printf("First frame index: %06lx\n", index);
+	
+	frames[0].version_id = get_VersionID(buffer, index);
 	printf("version ID: ");
-	print_binary(frame1.version_id, 2);
+	print_binary(frames[0].version_id, 2);
 
-	frame1.layer = get_Layer(buffer, index);
+	frames[0].layer = get_Layer(buffer, index);
 	printf("\nlayer description: ");
-	print_binary(frame1.layer, 2);
+	print_binary(frames[0].layer, 2);
 
-	frame1.protection = get_Protection(buffer, index);
+	frames[0].protection = get_Protection(buffer, index);
 	printf("\nProtection bit: ");
-	print_binary(frame1.protection, 1);
+	print_binary(frames[0].protection, 1);
 	
-	frame1.bit_rate = get_BitRate(buffer, index);
+	frames[0].bit_rate = get_BitRate(buffer, index);
 	printf("\nBit Rate: ");
-	print_binary(frame1.bit_rate, 4);
+	print_binary(frames[0].bit_rate, 4);
 
-	frame1.sampling_rate = get_SamplingRate(buffer, index);
+	frames[0].sampling_rate = get_SamplingRate(buffer, index);
 	printf("\nSampling Rate: ");
-	print_binary(frame1.sampling_rate, 2);
+	print_binary(frames[0].sampling_rate, 2);
 
-	frame1.padding = get_Padding(buffer, index);
+	frames[0].padding = get_Padding(buffer, index);
 	printf("\nPadding bit: ");
-	print_binary(frame1.padding, 1);
+	print_binary(frames[0].padding, 1);
 
-	frame1.private_bit = get_Private(buffer, index);
+	frames[0].private_bit = get_Private(buffer, index);
 	printf("\nPrivate bit: ");
-	print_binary(frame1.private_bit, 1);
+	print_binary(frames[0].private_bit, 1);
 
-	frame1.channel_mode = get_ChannelMode(buffer, index);
+	frames[0].channel_mode = get_ChannelMode(buffer, index);
 	printf("\nChannel Mode: ");
-	print_binary(frame1.channel_mode, 2);
+	print_binary(frames[0].channel_mode, 2);
 
-	frame1.mode_extension = get_Mode(buffer, index);
+	frames[0].mode_extension = get_Mode(buffer, index);
 	printf("\nMode Extension: ");
-	print_binary(frame1.mode_extension, 2);
+	print_binary(frames[0].mode_extension, 2);
 
-	frame1.copyright = get_Copyright(buffer, index);
+	frames[0].copyright = get_Copyright(buffer, index);
 	printf("\nCopywrite Bit: ");
-	print_binary(frame1.copyright, 1);
+	print_binary(frames[0].copyright, 1);
 
-	frame1.original = get_Original(buffer, index);
+	frames[0].original = get_Original(buffer, index);
 	printf("\nOriginal Bit: ");
-	print_binary(frame1.original, 1);
+	print_binary(frames[0].original, 1);
 	
-	frame1.emphasis = get_Emphasis(buffer, index);
+	frames[0].emphasis = get_Emphasis(buffer, index);
 	printf("\nEmphasis: ");
-	print_binary(frame1.emphasis, 2);
+	print_binary(frames[0].emphasis, 2);
 
-	frame1.frame_length = get_FrameLength(frame1.layer, frame1.version_id, frame1.bit_rate,
-					frame1.sampling_rate, frame1.padding);
-	printf("\nFrame Length (data + 4 byte header): %d", frame1.frame_length);
+	frames[0].frame_length = get_FrameLength(frames[0].layer, frames[0].version_id, frames[0].bit_rate,
+					frames[0].sampling_rate, frames[0].padding);
+	printf("\nFrame Length (data + 4 byte header): %d", frames[0].frame_length);
 	
-	frame1.data = get_FrameData(buffer, frame1.frame_length - 4, index + 4);
+	frames[0].data = get_FrameData(buffer, frames[0].frame_length - 4, index + 4);
 	
-	unsigned char* ptr = frame1.data;
+	unsigned char* ptr = frames[0].data;
 
 	printf("\n-------Frame Data-------\n");
 
-	for(int i = 0; i < frame1.frame_length - 4; i++) {
+	for(int i = 0; i < frames[0].frame_length - 4; i++) {
 		printf("%02x ", ptr[i]);
 	}
+
+	printf("\n\n--------End Data--------\n\n");
+
+	index = index + frames[0].frame_length;
+	long int frameIndex = 1;	
+	
+	printf("Processing remaining frames");
+
+	while(index < size - firstIndex) {
+		if(frameIndex % 1000 == 0) {
+			printf(".");		
+		}	
+
+//		printf("Frame index %ld: %06lx\n", frameIndex, index);
+		frames[frameIndex].version_id = get_VersionID(buffer, index);
+		frames[frameIndex].layer = get_Layer(buffer, index);
+		frames[frameIndex].protection = get_Protection(buffer, index);
+		frames[frameIndex].bit_rate = get_BitRate(buffer, index);
+		frames[frameIndex].sampling_rate = get_SamplingRate(buffer, index);
+		frames[frameIndex].padding = get_Padding(buffer, index);
+		frames[frameIndex].private_bit = get_Private(buffer, index);
+		frames[frameIndex].channel_mode = get_ChannelMode(buffer, index);
+		frames[frameIndex].mode_extension = get_Mode(buffer, index);
+		frames[frameIndex].copyright = get_Copyright(buffer, index);
+		frames[frameIndex].original = get_Original(buffer, index);
+		frames[frameIndex].emphasis = get_Emphasis(buffer, index);
+		frames[frameIndex].frame_length = get_FrameLength(frames[frameIndex].layer, frames[frameIndex].version_id, frames[frameIndex].bit_rate, frames[frameIndex].sampling_rate, 
+						frames[frameIndex].padding);
+		frames[frameIndex].data = get_FrameData(buffer, frames[0].frame_length - 4, index + 4);
+
+		index = index + frames[frameIndex].frame_length;
+		frameIndex++;
+	}
+	
+	printf("\nProcessing Completed!\n\n");
+
+	return frames;
 }
 
 
@@ -102,7 +140,11 @@ long int find_Next_Frame(char* buffer, long int size, long int start) {
 
 		if((unsigned char) buffer[byte] == 0xFF) {
 			found_byte = 1;
-		}		
+		}
+
+		if(byte == size - 1) {
+			return -1;
+		}
 	}
 
 	return -1;	
@@ -296,9 +338,9 @@ unsigned int get_FrameLength(unsigned int layer, unsigned int version,
 
 	// if layer 1
 	if(layer == 0x03) {
-		return ((unsigned int)(((12.0 * bit_rate_conv) / (sample_rate_conv + padding)) * 4.0));
+		return (unsigned int) (((12 * bit_rate_conv) / sample_rate_conv) + padding) * 4;
 	} else {
-		return ((unsigned int)((144.0 * bit_rate_conv) / (sample_rate_conv + padding)));
+		return (unsigned int) ((144 * bit_rate_conv) / sample_rate_conv) + padding;
 	}
 }
 

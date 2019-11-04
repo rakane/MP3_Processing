@@ -32,7 +32,7 @@ START_TEST(write_test) {
 	buffer[3] = 0xFF;
 	buffer[4] = 0xDD;
 		
-	write_audio("test/output.mp3", buffer, 5);
+	write_audio_buffer("test/output.mp3", buffer, 5);
 	
 	char* buffer2 = read_audio("test/output.mp3", 5);
 

@@ -22,11 +22,12 @@ struct frame {
 // io functions
 long int audio_size(char*);
 char* read_audio(char*, long int);
-int write_audio(char*, char*, long int);
+int write_audio_buffer(char*, char*, long int);
+int write_audio_frames(char*, struct frame*, long int); 
 void print_binary(unsigned int num, unsigned int num_bits); 
 
 // Audio processing functions
-struct frame process_audio(char*, long int);
+struct frame* process_audio(char*, long int);
 long int find_Next_Frame(char*, long int, long int);
 unsigned int get_VersionID(char*, long int);
 unsigned int get_Layer(char*, long int);

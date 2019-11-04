@@ -2,7 +2,7 @@
 
 long int audio_size(char* file) {
 	
-		FILE* f = fopen(file, "r");
+		FILE* f = fopen(file, "rb");
 		
 		if(f == NULL) {
 			printf("File not found!\n");
@@ -10,8 +10,8 @@ long int audio_size(char* file) {
 		}
 
 		fseek(f, 0L, SEEK_END);
-
 		long int result = ftell(f);
+		fseek(f, 0, SEEK_SET);
 
 		fclose(f);
 
@@ -35,7 +35,7 @@ char* read_audio(char* file, long int size) {
 	return buffer;
 }
 
-int write_audio(char* file, char* buffer, long int size) {
+int write_audio_buffer(char* file, char* buffer, long int size) {
 	FILE * f;
 
 	f = fopen(file, "wb");
@@ -51,4 +51,13 @@ int write_audio(char* file, char* buffer, long int size) {
 	fclose(f);
 	return 1;
 }
+
+char* frames_to_buffer(struct frame* frames, long int size) {
+	
+}
+
+int write_audio_frames(char* file, struct frame* frames, long int size) {
+
+}
+
 

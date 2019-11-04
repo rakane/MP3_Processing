@@ -8,11 +8,22 @@ int main(int argc, char* argv[]) {
 	}
 
 	long int size = audio_size(argv[1]);
-	printf("File size: %ld\n", size);
+	printf("File size: %06lx (%ld)\n", size, size);
 	
 	char* buffer = read_audio(argv[1], size);
 	
-	process_audio(buffer, size);	
-		
+	struct frame* frames;
+
+	frames = process_audio(buffer, size);	
+	
+	long int count = 0;
+	
+	while(frames[count].frame_length != 0) {
+		count++;
+	}
+
+	printf("Num of frames: %ld", count);	
+
+	write_audio_frames("output.mp3", frames, count); 
 	return 1;
 }
