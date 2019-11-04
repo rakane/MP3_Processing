@@ -1,5 +1,18 @@
 #include "../header.h"
 
+
+/* Function: convert_SampleRate
+ * ---------------------
+ * Converts sample rate from bits to Hz
+ *
+ * @param sample_rate
+ *  Sample rate in bits
+ * @param version
+ *  Audio version ID
+ *
+ * @return
+ *  Converted sampling rate in Hz
+ */
 unsigned int convert_SampleRate(unsigned int sample_rate, unsigned int version) {
 	// Version 1
 	if(version == 0x03) {
@@ -41,6 +54,21 @@ unsigned int convert_SampleRate(unsigned int sample_rate, unsigned int version) 
 	}
 }
 
+
+/* Function: convert_BitRate
+ * ---------------------
+ * Converts bit rate from bit form to kbps
+ *
+ * @param bit_rate
+ *  Bit rate in bit form
+ * @param version
+ *  Audio version ID
+ * @param layer
+ *  Audio layer type
+ *
+ * @return
+ *  Bit rate in kbps
+ */
 unsigned int convert_BitRate(unsigned int bit_rate, unsigned int version, 
 				unsigned int layer) {
 	
@@ -53,6 +81,18 @@ unsigned int convert_BitRate(unsigned int bit_rate, unsigned int version,
 	}
 }
 
+/* Function: convert_BitRate_V1
+ * ---------------------
+ * Converts bit rate for version 1 audio files from bit form to kbps
+ *
+ * @param bit_rate
+ *  Bit rate in bit form
+ * @param layer
+ *  Audio layer type
+ *
+ * @return
+ *  Bit rate in kbps
+ */
 unsigned int convert_BitRate_V1(unsigned int bit_rate, unsigned int layer) {
 	
 	// Layer 1
@@ -133,6 +173,18 @@ unsigned int convert_BitRate_V1(unsigned int bit_rate, unsigned int layer) {
 	}
 }
 
+/* Function: convert_BitRate_V2
+ * ---------------------
+ * Converts bit rate for version 2 and 2.5 audio files from bit form to kbps
+ *
+ * @param bit_rate
+ *  Bit rate in bit form
+ * @param layer
+ *  Audio layer type
+ *
+ * @return
+ *  Bit rate in kbps
+ */
 unsigned int convert_BitRate_V2(unsigned int bit_rate, unsigned int layer) {
 	// Layer 1
 	if(layer == 0x03) {

@@ -23,7 +23,7 @@ START_TEST(read_test) {
 	ck_assert(compare_buffer(buffer1, buffer2, size));
 } END_TEST
 
-START_TEST(write_test) {	
+START_TEST(write_buffer_test) {	
 
 	char* buffer = malloc(5);
 	buffer[0] = 0x11;
@@ -49,7 +49,7 @@ Suite * test_suite(void)
 	
 	tcase_add_test(tc_core, size_test);
 	tcase_add_test(tc_core, read_test);
-	tcase_add_test(tc_core, write_test);
+	tcase_add_test(tc_core, write_buffer_test);
 
 	suite_add_tcase(s, tc_core);
 	return s;

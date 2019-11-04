@@ -25,10 +25,11 @@ unsigned char* read_audio(char*, long int);
 int write_audio_buffer(char*, unsigned char*, long int);
 int write_audio_frames(char*, struct frame*, long int, long int); 
 void print_binary(unsigned int num, unsigned int num_bits); 
+void print_frame(struct frame);
 
-// Audio processing functions
-struct frame* process_audio(unsigned char*, long int);
-long int find_Next_Frame(unsigned char*, long int, long int);
+// Audio Conversion functions
+struct frame* convert_audio(unsigned char*, long int);
+long int find_First_Frame(unsigned char*, long int, long int);
 unsigned int get_VersionID(unsigned char*, long int);
 unsigned int get_Layer(unsigned char*, long int);
 unsigned int get_Protection(unsigned char*, long int);

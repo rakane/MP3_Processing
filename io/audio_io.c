@@ -1,23 +1,44 @@
 #include "../header.h"
 
+/* Function: audio_size
+ * ---------------------
+ * Finds the length in bytes of the input file
+ *
+ * @param file
+ *  Name of input file
+ * 
+ * @return 
+ *  Length of file in bytes
+ */
 long int audio_size(char* file) {
+	FILE* f = fopen(file, "rb");
 	
-		FILE* f = fopen(file, "rb");
-		
-		if(f == NULL) {
-			printf("File not found!\n");
-			return -1;
-		}
+	if(f == NULL) {
+		printf("File not found!\n");
+		return -1;
+	}
 
-		fseek(f, 0L, SEEK_END);
-		long int result = ftell(f);
-		fseek(f, 0, SEEK_SET);
+	fseek(f, 0L, SEEK_END);
+	long int result = ftell(f);
+	fseek(f, 0, SEEK_SET);
 
-		fclose(f);
+	fclose(f);
 
-		return result;
+	return result;
 }
 
+/* Function: read_audio
+ * ---------------------
+ * Reads bytes from file to buffer
+ *
+ * @param file
+ *  Name of input file
+ * @param size
+ *  Length of file in bytes
+ *
+ * @return 
+ *  Filled in buffer with file data
+ */
 unsigned char* read_audio(char* file, long int size) {
 	FILE* input;
 	unsigned char* buffer = malloc(size + 1);
@@ -35,9 +56,22 @@ unsigned char* read_audio(char* file, long int size) {
 	return buffer;
 }
 
+/* Function: write_audio_buffer
+ * ---------------------
+ * Writes buffer of file data to the output file
+ *
+ * @param file
+ *  Name of output file
+ * @param buffer
+ *  Buffer containing data to be written
+ * @param size
+ * 	Size of data buffer
+ *
+ * @return 
+ *  -1 if failed, 1 if written
+ */
 int write_audio_buffer(char* file, unsigned char* buffer, long int size) {
 	FILE * f;
-
 	f = fopen(file, "wb");
 
 	if(f == NULL) {
@@ -52,14 +86,28 @@ int write_audio_buffer(char* file, unsigned char* buffer, long int size) {
 	return 1;
 }
 
+
+/* Function: frames_to_buffer
+ * ---------------------
+ * Converts array of frames to a byte array 
+ *
+ * @param frames
+ *  Array of audio frames
+ * @param frame_count
+ *  Number of frames
+ * @param size
+ *  Size of byte array
+ * 
+ * @return 
+ *  Byte buffer from frame data
+ */
 char* frames_to_buffer(struct frame* frames, long int frame_count, long int size) {
+	
 	unsigned char* buffer = malloc(size);
 	long int bufferIndex = 0;
-	
 	printf("Starting Conversion...\n");
 	
-	for(int i = 0; i < frame_count; i++) {
-			
+	for(int i = 0; i < frame_count; i++) {	
 		int byte = 0;
 		
 		// Sync bits
@@ -122,23 +170,110 @@ char* frames_to_buffer(struct frame* frames, long int frame_count, long int size
 		for(int d = 0; d < frames[i].frame_length - 4; d++) {
 			buffer[bufferIndex++] =  ptr[d];
 		}
-		
-		// Add padding bit
-//		if(frames[i].padding) {
-//			buffer[bufferIndex++] = 0x62;
-//		}
-	}
-	
-//	printf("Last byte index %06lx\n", bufferIndex);	
+	}	
 	return buffer;
 }
 
+/* Function: write_audio_frames
+ * ---------------------
+ * Writes audio frames to output file
+ *
+ * @param file
+ *  Name of output file
+ * @param frames
+ *  Array of audio frams
+ * @param frame_count
+ *  Number of frames 
+ * @param size
+ *  Size of buffer
+ *
+ * @return 
+ *  -1 if failed, 1 if written
+ */
 int write_audio_frames(char* file, struct frame* frames, long int frame_count, 
 				long int size) {
 
 	unsigned char* buffer = frames_to_buffer(frames, frame_count, size);
 	printf("Finished conversion!\n");
-	write_audio_buffer(file, buffer, size);
+	return write_audio_buffer(file, buffer, size);
+}
+
+/* Function: print_binary
+ * ---------------------
+ * Prints num as a binary number
+ *
+ * @param num
+ *  Number to be printed as binary
+ * @param num_bits
+ *  Number of bits to be printed
+ */
+void print_binary(unsigned int num, unsigned int num_bits) {
+	unsigned int i;
+	
+	for(i = 1 << (num_bits - 1); i > 0; i = i / 2) {
+		if(num & i) {
+			printf("1");	   
+		} else {
+			printf("0");
+		}
+	}
+}
+
+/* Function: print_frame
+ * ---------------------
+ * Prints out frame header and data
+ *
+ * @param frame1
+ *  Frame to be printed
+ */
+void print_frame(struct frame frame1) {
+	printf("version ID: ");
+	print_binary(frame1.version_id, 2);
+
+	printf("\nlayer description: ");
+	print_binary(frame1.layer, 2);
+
+	printf("\nProtection bit: ");
+	print_binary(frame1.protection, 1);
+	
+	printf("\nBit Rate: ");
+	print_binary(frame1.bit_rate, 4);
+
+	printf("\nSampling Rate: ");
+	print_binary(frame1.sampling_rate, 2);
+
+	printf("\nPadding bit: ");
+	print_binary(frame1.padding, 1);
+
+	printf("\nPrivate bit: ");
+	print_binary(frame1.private_bit, 1);
+
+	printf("\nChannel Mode: ");
+	print_binary(frame1.channel_mode, 2);
+
+	printf("\nMode Extension: ");
+	print_binary(frame1.mode_extension, 2);
+
+	printf("\nCopywrite Bit: ");
+	print_binary(frame1.copyright, 1);
+
+	printf("\nOriginal Bit: ");
+	print_binary(frame1.original, 1);
+	
+	printf("\nEmphasis: ");
+	print_binary(frame1.emphasis, 2);
+
+	printf("\nFrame Length (data + 4 byte header): %d", frame1.frame_length);
+
+	unsigned char* ptr = frame1.data;
+
+	printf("\n-------Frame Data-------\n");
+
+	for(int i = 0; i < frame1.frame_length - 4; i++) {
+		printf("%02x ", ptr[i]);
+	}
+
+	printf("\n--------End Data--------\n");
 }
 
 

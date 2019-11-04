@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 	
 	struct frame* frames;
 
-	frames = process_audio(buffer, size);	
+	frames = convert_audio(buffer, size);	
 	
 	long int count = 0;
 	
