@@ -53,7 +53,7 @@ int write_audio_buffer(char* file, unsigned char* buffer, long int size) {
 }
 
 char* frames_to_buffer(struct frame* frames, long int frame_count, long int size) {
-	unsigned char* buffer = malloc(size + 10000);
+	unsigned char* buffer = malloc(size);
 	long int bufferIndex = 0;
 	
 	printf("Starting Conversion...\n");
@@ -138,7 +138,7 @@ int write_audio_frames(char* file, struct frame* frames, long int frame_count,
 
 	unsigned char* buffer = frames_to_buffer(frames, frame_count, size);
 	printf("Finished conversion!\n");
-	write_audio_buffer(file, buffer, size + 10000);
+	write_audio_buffer(file, buffer, size);
 }
 
 
