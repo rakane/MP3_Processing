@@ -19,3 +19,4 @@ compile:
 clean:
 	rm main
 	rm check
+	rm output.mp3

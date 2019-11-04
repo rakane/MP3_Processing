@@ -12,13 +12,13 @@ void print_binary(unsigned int num, unsigned int num_bits) {
 	}
 }
 
-struct frame* process_audio(char* buffer, long int size) {
+struct frame* process_audio(unsigned char* buffer, long int size) {
 	struct frame frame1;
 	struct frame* frames = malloc(10000 * sizeof(struct frame));
 	
 	long int firstIndex = find_Next_Frame(buffer, size, 0);
 	long int index = firstIndex;
-	printf("First frame index: %06lx\n", index);
+	printf("First frame index: 0x%06lx\n", index);
 	
 	frames[0].version_id = get_VersionID(buffer, index);
 	printf("version ID: ");
@@ -82,19 +82,15 @@ struct frame* process_audio(char* buffer, long int size) {
 		printf("%02x ", ptr[i]);
 	}
 
-	printf("\n\n--------End Data--------\n\n");
+	printf("\n--------End Data--------\n");
 
 	index = index + frames[0].frame_length;
 	long int frameIndex = 1;	
 	
-	printf("Processing remaining frames");
+	printf("Processing remaining frames\n");
 
 	while(index < size - firstIndex) {
-		if(frameIndex % 1000 == 0) {
-			printf(".");		
-		}	
-
-//		printf("Frame index %ld: %06lx\n", frameIndex, index);
+			
 		frames[frameIndex].version_id = get_VersionID(buffer, index);
 		frames[frameIndex].layer = get_Layer(buffer, index);
 		frames[frameIndex].protection = get_Protection(buffer, index);
@@ -109,19 +105,26 @@ struct frame* process_audio(char* buffer, long int size) {
 		frames[frameIndex].emphasis = get_Emphasis(buffer, index);
 		frames[frameIndex].frame_length = get_FrameLength(frames[frameIndex].layer, frames[frameIndex].version_id, frames[frameIndex].bit_rate, frames[frameIndex].sampling_rate, 
 						frames[frameIndex].padding);
-		frames[frameIndex].data = get_FrameData(buffer, frames[0].frame_length - 4, index + 4);
+		frames[frameIndex].data = get_FrameData(buffer, frames[0].frame_length - 3, index + 4);
+		
+		unsigned char* ptr1 = frames[frameIndex].data;
+
+//		if(frameIndex > 6000) {
+//			printf("Frame index %ld: %06lx\tLength: %d\tPadding: %d\tLast Data byte: %02x\n", frameIndex, index, frames[frameIndex].frame_length, frames[frameIndex].padding,
+//							ptr1[frames[frameIndex].frame_length - 5]);
+//		}
 
 		index = index + frames[frameIndex].frame_length;
 		frameIndex++;
 	}
 	
-	printf("\nProcessing Completed!\n\n");
+	printf("\nProcessing Completed!\n");
 
 	return frames;
 }
 
 
-long int find_Next_Frame(char* buffer, long int size, long int start) {
+long int find_Next_Frame(unsigned char* buffer, long int size, long int start) {
 	int found_byte = 0;
 	int found_frame = 0;
 
@@ -150,7 +153,7 @@ long int find_Next_Frame(char* buffer, long int size, long int start) {
 	return -1;	
 }
 
-unsigned int get_VersionID(char* buffer, long int startIndex) {
+unsigned int get_VersionID(unsigned char* buffer, long int startIndex) {
 	
 	unsigned int b1 = buffer[startIndex + 1] & 0x10;
 	unsigned int b2 = buffer[startIndex + 1] & 0x08;	
@@ -171,7 +174,7 @@ unsigned int get_VersionID(char* buffer, long int startIndex) {
 	return id;
 }
 
-unsigned int get_Layer(char* buffer, long int startIndex) {
+unsigned int get_Layer(unsigned char* buffer, long int startIndex) {
 	unsigned int b1 = buffer[startIndex + 1] & 0x04;
 	unsigned int b2 = buffer[startIndex + 1] & 0x02;	
 	unsigned int layer;
@@ -191,7 +194,7 @@ unsigned int get_Layer(char* buffer, long int startIndex) {
 	return layer;
 }
 
-unsigned int get_Protection(char* buffer, long int startIndex) {
+unsigned int get_Protection(unsigned char* buffer, long int startIndex) {
 	unsigned int b = buffer[startIndex + 1] & 0x01;
 
 	if(b) {
@@ -201,12 +204,12 @@ unsigned int get_Protection(char* buffer, long int startIndex) {
 	}
 }
 
-unsigned int get_BitRate(char* buffer, long int startIndex) {
+unsigned int get_BitRate(unsigned char* buffer, long int startIndex) {
 	unsigned int bit_rate = (buffer[startIndex + 2] >> 4) & 0x0F;
 	return bit_rate;
 }
 
-unsigned int get_SamplingRate(char* buffer, long int startIndex) {
+unsigned int get_SamplingRate(unsigned char* buffer, long int startIndex) {
 	unsigned int b1 = buffer[startIndex + 2] & 0x08;
 	unsigned int b2 = buffer[startIndex + 2] & 0x04;
 	unsigned int sampling_rate;
@@ -227,7 +230,7 @@ unsigned int get_SamplingRate(char* buffer, long int startIndex) {
 	return sampling_rate;
 }
 
-unsigned int get_Padding(char* buffer, long int startIndex) {
+unsigned int get_Padding(unsigned char* buffer, long int startIndex) {
 	unsigned int b = buffer[startIndex + 2] & 0x02;
 
 	if(b) {
@@ -237,7 +240,7 @@ unsigned int get_Padding(char* buffer, long int startIndex) {
 	}
 }
 
-unsigned int get_Private(char* buffer, long int startIndex) {
+unsigned int get_Private(unsigned char* buffer, long int startIndex) {
 	unsigned int b = buffer[startIndex + 2] & 0x01;
 
 	if(b) {
@@ -247,7 +250,7 @@ unsigned int get_Private(char* buffer, long int startIndex) {
 	}
 }
 
-unsigned int get_ChannelMode(char* buffer, long int startIndex) {
+unsigned int get_ChannelMode(unsigned char* buffer, long int startIndex) {
 	unsigned int b1 = buffer[startIndex + 3] & 0x80;
 	unsigned int b2 = buffer[startIndex + 3] & 0x40;
 	unsigned int channel;
@@ -268,7 +271,7 @@ unsigned int get_ChannelMode(char* buffer, long int startIndex) {
 	return channel;
 }
 
-unsigned int get_Mode(char* buffer, long int startIndex) {
+unsigned int get_Mode(unsigned char* buffer, long int startIndex) {
 	unsigned int b1 = buffer[startIndex + 3] & 0x20;
 	unsigned int b2 = buffer[startIndex + 3] & 0x10;
 	unsigned int mode;
@@ -289,7 +292,7 @@ unsigned int get_Mode(char* buffer, long int startIndex) {
 	return mode;
 }
 
-unsigned int get_Copyright(char* buffer, long int startIndex) {
+unsigned int get_Copyright(unsigned char* buffer, long int startIndex) {
 	unsigned int b = buffer[startIndex + 3] & 0x08;
 
 	if(b) {
@@ -299,7 +302,7 @@ unsigned int get_Copyright(char* buffer, long int startIndex) {
 	}
 }
 
-unsigned int get_Original(char* buffer, long int startIndex) {
+unsigned int get_Original(unsigned char* buffer, long int startIndex) {
 	unsigned int b = buffer[startIndex + 3] & 0x04;
 
 	if(b) {
@@ -309,7 +312,7 @@ unsigned int get_Original(char* buffer, long int startIndex) {
 	}
 }
 
-unsigned int get_Emphasis(char* buffer, long int startIndex) {
+unsigned int get_Emphasis(unsigned char* buffer, long int startIndex) {
 	unsigned int b1 = buffer[startIndex + 3] & 0x02;
 	unsigned int b2 = buffer[startIndex + 3] & 0x01;
 	unsigned int emphasis;
@@ -344,7 +347,7 @@ unsigned int get_FrameLength(unsigned int layer, unsigned int version,
 	}
 }
 
-unsigned char* get_FrameData(char* buffer, unsigned int size, long int startIndex) {
+unsigned char* get_FrameData(unsigned char* buffer, unsigned int size, long int startIndex) {
 	
 	unsigned char* data = malloc(size);
 	

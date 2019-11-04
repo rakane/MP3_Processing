@@ -8,9 +8,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	long int size = audio_size(argv[1]);
-	printf("File size: %06lx (%ld)\n", size, size);
+	printf("File size: 0x%06lx (%ld)\n", size, size);
 	
-	char* buffer = read_audio(argv[1], size);
+	unsigned char* buffer = read_audio(argv[1], size);
 	
 	struct frame* frames;
 
@@ -22,8 +22,8 @@ int main(int argc, char* argv[]) {
 		count++;
 	}
 
-	printf("Num of frames: %ld", count);	
+	printf("Num of frames: %ld\n\n", count);	
 
-	write_audio_frames("output.mp3", frames, count); 
+	write_audio_frames("output.mp3", frames, count, size); 
 	return 1;
 }
